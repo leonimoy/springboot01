@@ -19,12 +19,21 @@ public class SignUpFormValidator implements Validator {
     return clazz.isAssignableFrom((SignUpForm.class));
   }
 
+
+  // Object target : form 에서 전달된 객체
   @Override
   public void validate(Object target, Errors errors) {
     // DB를 조회해서 email 이나 nickname 이 중복되는지 검사하기
-    SignUpForm signUpForm = (SignUpForm)errors;
+    SignUpForm signUpForm = (SignUpForm)target;
     if(accountRepository.existsByEmail(signUpForm.getEmail())){
-
+      errors.rejectValue("email", "invalid.email",
+                          new Object[]{signUpForm.getEmail()},
+                          "이미 사용 중인 이메일입니다");
+    }
+    if(accountRepository.existsByNickName(signUpForm.getNickname())){
+      errors.rejectValue("nickname", "invalid.nickname",
+                         new Object[]{signUpForm.getNickname()},
+                        "이미 사용 중인 닉네임입니다");
     }
 
   }
