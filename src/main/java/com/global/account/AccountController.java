@@ -20,8 +20,8 @@ import javax.validation.Valid;
 public class AccountController {
 
   private final SignUpFormValidator signUpFormValidator;
-  private final AccountRepository accountRepository;
-  private final JavaMailSender javaMailSender;
+  private final AccountService accountService;
+
 
   @InitBinder("signUpForm")
   public void initBinder(WebDataBinder webDataBinder){
@@ -60,40 +60,20 @@ public class AccountController {
     }
     */
 
-    Account newAccount = saveNewAccount(signUpForm);
+    accountService.processNewAccount(signUpForm);
+    /*
+     이 부분은 Service 에서 실행하는 부분이라서
+     Controller 에서 작성하지 않는 것이 좋음
+
+    Account newAccount = accountService.saveNewAccount(signUpForm);
     // 이메일 보내기 전에 토큰값 생성하기
     newAccount.generateEmailCheckToken();
-    sendSignUpConfirmEmail(newAccount);
-
+    accountService.sendSignUpConfirmEmail(newAccount);
+   */
     // 회원가입 폼이 제대로 입력된 경우,
     // Home(/) 으로 이동함
     return "redirect:/";
   }
 
-  private Account saveNewAccount(SignUpForm signUpForm) {
-    Account account = Account.builder()
-                             .email(signUpForm.getEmail())
-                             .nickName(signUpForm.getNickName())
-                             .password(signUpForm.getPassword())
-                             .studyCreateByWeb(true)
-                             .studyEnrollmentResultByWeb(true)
-                             .studyUpdateByWeb(true)
-                             .build();
 
-    Account newAccount = accountRepository.save(account);
-    return newAccount;
-  }
-
-  private void sendSignUpConfirmEmail(Account newAccount) {
-    SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-    // 토큰값에 해당하는 이메일 주소 받기
-    simpleMailMessage.setTo(newAccount.getEmail());
-    // 이메일 제목
-    simpleMailMessage.setSubject("회원 가입 인증");
-    // 이메일 본문
-    // simpleMailMessage.setText("/check-email-token?token=이메일보내기전에생성한토큰값&email=토큰값에해당하는이메일주소");
-    simpleMailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken()
-                                                          + "&email=" + newAccount.getEmail());
-    javaMailSender.send(simpleMailMessage);
-  }
 }
