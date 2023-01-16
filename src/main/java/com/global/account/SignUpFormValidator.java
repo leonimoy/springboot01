@@ -30,9 +30,9 @@ public class SignUpFormValidator implements Validator {
                           new Object[]{signUpForm.getEmail()},
                           "이미 사용 중인 이메일입니다");
     }
-    if(accountRepository.existsByNickName(signUpForm.getNickname())){
-      errors.rejectValue("nickname", "invalid.nickname",
-                         new Object[]{signUpForm.getNickname()},
+    if(accountRepository.existsByNickName(signUpForm.getNickName())){
+      errors.rejectValue("nickName", "invalid.nickname",
+                         new Object[]{signUpForm.getNickName()},
                         "이미 사용 중인 닉네임입니다");
     }
 
