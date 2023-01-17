@@ -99,11 +99,15 @@ public class AccountController {
       return view;
     }
 
+    account.completeSignUp();
+    /*
+    아래 code 를 Account 클래스의 completeSignUp() 메소드로 옮기기
+
     // 가입자가 입력한 이메일이 정상적으로 등록된 경우 + token 까지 확인된 경우
     account.setEmailVerified(true);
     // 가입한 시간 등록
     account.setJoinedAt(LocalDateTime.now());
-
+    */
     // 몇 번째(accountRepository.count()) 가입자인지... 처리하기
     model.addAttribute("numberOfUser", accountRepository.count());
 
