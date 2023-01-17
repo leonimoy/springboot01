@@ -6,6 +6,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +17,7 @@ public class AccountService {
   private final JavaMailSender javaMailSender;
   private final PasswordEncoder passwordEncoder;
 
-
+  @Transactional
   public void processNewAccount(SignUpForm signUpForm) {
     Account newAccount = saveNewAccount(signUpForm);
     // 이메일 보내기 전에 토큰값 생성하기
@@ -22,7 +25,7 @@ public class AccountService {
     sendSignUpConfirmEmail(newAccount);
   }
 
-  private Account saveNewAccount(SignUpForm signUpForm) {
+  private Account saveNewAccount(@Valid SignUpForm signUpForm) {
     Account account = Account.builder()
       .email(signUpForm.getEmail())
       .nickName(signUpForm.getNickName())
