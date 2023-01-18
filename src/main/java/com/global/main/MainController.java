@@ -26,4 +26,11 @@ public class MainController {
 
   }
 
+  @GetMapping("/login")
+  public String login(){
+    // return "templates/login.html";
+    return "/login";
+  }
+
+
 }

@@ -9,6 +9,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccountService {
+public class AccountService implements UserDetailsService {
   private final AccountRepository accountRepository;
   private final JavaMailSender javaMailSender;
   private final PasswordEncoder passwordEncoder;
@@ -74,5 +77,10 @@ public class AccountService {
     // context 를 받아와서 인증하기
     SecurityContext context = SecurityContextHolder.getContext();
     context.setAuthentication(token);
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return null;
   }
 }

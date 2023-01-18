@@ -84,5 +84,30 @@
     <small class="d-block mb-3 text-muted">&copy; 2022</small>
   </div>
 </footer>
+
+<script type="application/javascript" th:fragment="form-validation">
+    (function () {
+      'use strict'
+
+      window.addEventListener('load', function(){
+        // 클래스이름이 needs-validation 인 element 들 가져오기
+        let forms = document.getElementsByClassName('needs-validation')
+
+        Array.prototype.filter.call(forms, function(form){
+          // submit 이벤트가 발생했을 때
+          form.addEventListener('submit', function(event){
+            // 해당 form 이 유효한지 검증하고, 유효하지 않으면
+            if(form.checkValidity() === false){
+              // 해당 form 이 submit 이 안 되도록 함
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            // was-validated 클래스 를 추가함
+            form.classList.add('was-validated')
+          }, false)
+        })
+      }, false)
+    }())
+  </script>
 </body>
 </html>
