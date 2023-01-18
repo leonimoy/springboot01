@@ -65,7 +65,8 @@ public class AccountService {
   // password 를 encoding 하기 때문에 아래의 방법으로 로그인함
   public void login(Account account) {
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                                                        account.getNickName(),
+                                                        // account.getNickName(),
+                                                        new UserAccount(account),
                                                         account.getPassword(),
                                                         List.of(new SimpleGrantedAuthority("ROLE_USER"))
                                                       );

@@ -5,7 +5,7 @@
 <head th:replace="fragments.html :: head"></head>
 <body class="bg-light">
   <nav th:replace="fragments.html :: main-nav"></nav>
-  <div class="alert alert-warning" role="alert" th:if="${account != null && !account.emailVarified}">
+  <div class="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}">
     Study Cafe 에 가입을 완료하려면
     <a href="#" th:href="@{/check-email}" class="alert-link">
       계정 인증 메일을 확인
