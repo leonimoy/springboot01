@@ -5,6 +5,12 @@
 <head th:replace="fragments.html :: head"></head>
 <body class="bg-light">
   <nav th:replace="fragments.html :: main-nav"></nav>
+  <div class="alert alert-warning" role="alert" th:if="${account != null && !account.emailVarified}">
+    Study Cafe 에 가입을 완료하려면
+    <a href="#" th:href="@{/check-email}" class="alert-link">
+      계정 인증 메일을 확인
+    </a>하세요
+  </div>
 
 <div class="container">
   <div class="py-5 text-center">
@@ -15,8 +21,7 @@
 
 </div>
 
-  <script src="node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
 
  </body>
 </html>
