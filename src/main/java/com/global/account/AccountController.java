@@ -124,4 +124,35 @@ public class AccountController {
     return view;
   }
 
+  @GetMapping("/checkout-email")
+  public String checkoutEmail(@CurrentUser Account account, Model model){
+    model.addAttribute("email", account.getEmail());
+    return "account/checkout-email";
+  }
+
+  // checkout-email.html 에서 인증 메일 다시 보내기 버튼 눌렀을 때
+  // 주소표시줄에 localhost:8080/resend-confirm-email URL 이 입력되면
+  // 자동으로 호출되는 메소드
+  @GetMapping("/resend-confirm-email")
+  public String resendConfirmEmail(@CurrentUser Account account, Model model){
+    // 인증 메일을 1 시간 이내에 전송한 이력이 있다면 좀 기다렸다가 1 시간 지난 후 전송해야 함
+    if(!account.canSendConfirmEmail()){
+      model.addAttribute("error", "인증 이메일은 1 시간에 한 번만 전송 가능합니다.");
+      model.addAttribute("email", account.getEmail());
+      // 에러 메세지를 보여주고 같은 페이지를 다시 보여줌
+      return "account/checkout-email";
+    }
+     // 인증 메일을 1 시간 이내에 전송한 이력이 없다면 전송하고 첫 페이지로 이동함
+     accountService.sendSignUpConfirmEmail(account);
+
+
+     return "redirect:/";
+  }
+
 }
+
+
+
+
+
+

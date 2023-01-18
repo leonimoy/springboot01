@@ -49,7 +49,7 @@ public class AccountService {
     return newAccount;
   }
 
-  private void sendSignUpConfirmEmail(Account newAccount) {
+  public void sendSignUpConfirmEmail(Account newAccount) {
     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
     // 토큰값에 해당하는 이메일 주소 받기
     simpleMailMessage.setTo(newAccount.getEmail());
