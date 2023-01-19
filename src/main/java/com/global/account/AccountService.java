@@ -21,6 +21,12 @@ import javax.el.ELContext;
 import javax.validation.Valid;
 import java.util.List;
 
+// AccountService 클래스는 @Service 에 의해서
+// Bean 으로 등록되어 있음 (Bean : Spring 이 자동으로 생성하고 관리하는 객체)
+//  ㄴ UserDetailsService 를 상속하는 Bean 이 하나만 있으면
+//     Spring Security 에 별도로 설정하지 않아도 됨
+//       ㄴ Spring 이 자동으로 이  Bean (AccountService) 을 사용함
+//                 ㄴ login, logout 모두 자동으로 동작함
 @Service
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
@@ -80,7 +86,26 @@ public class AccountService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return null;
+  public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNotFoundException {
+    // findByEmail() 로 email 로 로그인하는지 알아보기
+    Account account = accountRepository.findByEmail(emailOrNickName);
+    // email 로 로그인하는 것이 아니라면
+    // findByNickName() 로 nickName 으로 로그인하는지 알아보기
+    if(account == null){
+      account = accountRepository.findByNickName(emailOrNickName);
+    }
+
+    // nickName 으로도 로그인하는 것이 아니라면
+    // UsernameNotFoundException 예외를 발생시킴
+    //   ㄴ email 또는 password 가 잘못되었다고 메세지를 return 함
+    if(account == null){
+      throw new UsernameNotFoundException(emailOrNickName);
+    }
+
+    // 현재 입력한 email 이나 nickName 에 해당하는 user 가 있는 경우
+    // ㄴ Principal 에 해당하는 객체를 넘김
+    //      ㄴ Spring Security 가 제공하는 User 를 상속하는 UserAccount 객체
+    //                              com.global.account 패키지에 만들어 놓았음
+    return new UserAccount(account);
   }
 }
