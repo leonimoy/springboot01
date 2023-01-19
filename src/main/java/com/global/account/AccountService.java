@@ -27,7 +27,10 @@ import java.util.List;
 //     Spring Security 에 별도로 설정하지 않아도 됨
 //       ㄴ Spring 이 자동으로 이  Bean (AccountService) 을 사용함
 //                 ㄴ login, logout 모두 자동으로 동작함
+// @Transactional : AccountService 클래스의 모든 method 의 작업이
+//                  Transaction 안에서 진행되도록 설정함
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
   private final AccountRepository accountRepository;
@@ -35,7 +38,7 @@ public class AccountService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   // private final AuthenticationManager authenticationManager;
 
-  @Transactional
+  
   public Account processNewAccount(SignUpForm signUpForm) {
     Account newAccount = saveNewAccount(signUpForm);
     // 이메일 보내기 전에 토큰값 생성하기
@@ -85,6 +88,8 @@ public class AccountService implements UserDetailsService {
     context.setAuthentication(token);
   }
 
+  // readOnly = true : data 를 변경하는 것이 아니고, 로그인 할 때 확인만 함
+  @Transactional(readOnly = true)
   @Override
   public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNotFoundException {
     // findByEmail() 로 email 로 로그인하는지 알아보기
@@ -107,5 +112,13 @@ public class AccountService implements UserDetailsService {
     //      ㄴ Spring Security 가 제공하는 User 를 상속하는 UserAccount 객체
     //                              com.global.account 패키지에 만들어 놓았음
     return new UserAccount(account);
+  }
+
+  //   - Entity 객체 변경은 반드시 Transaction 안에서 해야 함
+  //     ㄴ Transaction 종료 직전이나 필요한 시점에 변경 사항을 DB 에 반영할 수 있기 때문
+  // 데이터를 변경하는 작업을 하므로 @Transactional(readOnly = true) 로 설정하지 않음
+  public void completeSignUp(Account account) {
+    account.completeSignUp();
+    login(account);
   }
 }
