@@ -115,6 +115,8 @@ public class AccountController {
     //     ㄴ Transaction 종료 직전이나 필요한 시점에 변경 사항을 DB 에 반영할 수 있기 때문
     //  completeSignUp(account) : persistence 상태의 entity
     //  (Repository 를 구현한 객체들은 기본적으로 @Transactional 이 적용되어 있음)
+    // completeSignUp(account) 에서의 account 객체는 persistence context 상태임
+    //                                   ㄴ 88 행에서 생성된 account 객체
     accountService.completeSignUp(account);
     /*
       아래의 내용을 completeSignUp() 메소드로 옮김

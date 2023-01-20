@@ -1,6 +1,7 @@
 package com.global.account;
 
 import com.global.domain.Account;
+import com.global.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -121,4 +122,20 @@ public class AccountService implements UserDetailsService {
     account.completeSignUp();
     login(account);
   }
+
+  public void updateProfile(Account account, Profile profile) {
+    // account 의 정보를 변경함
+    // account 객체 <-- 현재 로그인해 있는 회원의 정보를 저장한 객체
+    // profile 객체 <-- 변경한 내용(bio, url, occupation, location) 정보를 저장한 객체
+    // 변경한 내용을 저장한 profile 객체에서 bio, url, occupation, location 을 갖고 와서
+    // 현재 로그인한 회원의 정보를 저장하고 있는 account 객체의 bio, url, occupation, location 에 할당함
+    account.setBio(profile.getBio());
+    account.setUrl(profile.getUrl());
+    account.setOccupation(profile.getOccupation());
+    account.setLocation(profile.getLocation());
+
+    // account 객체의 멤버변수 값이 변경된 것을 DB 에도 반영함
+    accountRepository.save(account);
+  }
+
 }
