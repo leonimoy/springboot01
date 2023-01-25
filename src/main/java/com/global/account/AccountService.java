@@ -1,6 +1,7 @@
 package com.global.account;
 
 import com.global.domain.Account;
+import com.global.settings.Notifications;
 import com.global.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -53,9 +54,9 @@ public class AccountService implements UserDetailsService {
       .email(signUpForm.getEmail())
       .nickName(signUpForm.getNickName())
       .password(passwordEncoder.encode(signUpForm.getPassword()))
-      .studyCreateByWeb(true)
+      .studyCreatedByWeb(true)
       .studyEnrollmentResultByWeb(true)
-      .studyUpdateByWeb(true)
+      .studyUpdatedByWeb(true)
       .build();
 
     Account newAccount = accountRepository.save(account);
@@ -153,5 +154,15 @@ public class AccountService implements UserDetailsService {
     // 명시적으로 merge 해 주어야 함
     accountRepository.save(account);
 
+  }
+
+  public void updateNotifications(Account account, Notifications notifications) {
+    account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
+    account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
+    account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
+    account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
+    account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
+    account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
+    accountRepository.save(account);
   }
 }

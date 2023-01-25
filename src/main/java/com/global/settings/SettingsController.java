@@ -47,6 +47,9 @@ public class SettingsController {
   static final String SETTINGS_PASSWORD_VIEW = "settings/password";
   static final String SETTINGS_PASSWORD_URL = "/settings/password";
 
+  static final String SETTING_NOTIFICATIONS_VIEW = "settings/notifications";
+  static final String SETTING_NOTIFICATIONS_URL = "/settings/notifications";
+
   // Service type 의 멤버변수 선언
   private final AccountService accountService;
 
@@ -137,5 +140,30 @@ public class SettingsController {
 
     return "redirect:" + SETTINGS_PASSWORD_URL;
   }
+
+  @GetMapping(SETTING_NOTIFICATIONS_URL)
+  public String updateNotificationsForm(@CurrentUser Account account, Model model){
+    model.addAttribute(account);
+    model.addAttribute(new Notifications(account));
+    return SETTING_NOTIFICATIONS_VIEW;
+  }
+
+  // @Valid Notifications notifications : 여기서는 다른 검증이 불필요해서
+  // InitBinder() 를 별도로 지정하지 않음
+  @PostMapping(SETTING_NOTIFICATIONS_URL)
+  public String updateNotifications(@CurrentUser Account account,
+                                    @Valid Notifications notifications,
+                                    Errors errors, Model model,
+                                    RedirectAttributes redirectAttributes){
+    if(errors.hasErrors()){
+      model.addAttribute(account);
+      return SETTING_NOTIFICATIONS_VIEW;
+    }
+
+    accountService.updateNotifications(account, notifications);
+    redirectAttributes.addFlashAttribute("message", "알림 설정이 변경되었습니다.");
+    return "redirect:" + SETTING_NOTIFICATIONS_URL;
+  }
+
 
 }
