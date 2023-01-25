@@ -141,4 +141,17 @@ public class AccountService implements UserDetailsService {
     accountRepository.save(account);
   }
 
+  // SettingsController 의 public String updatePassword() 메소드에서 호출함
+  public void updatePassword(Account account, String newPassword) {
+    // account 의 비밀번호를 새로운 비밀번호로 변경함
+    // SettingsController 의 public String updatePassword() 메소드에서 전달받은
+    // account 객체는 Detached 상태이지 Persistence 상태가 아님
+    // 변경이력이 취합되지 않아서, code 로 명시적으로 merge 해 주어야 함
+    // account.setPassword(newPassword); <-- encoding 되지 않은 상태로 저장됨
+    // encoding 해서 저장하기
+    account.setPassword(passwordEncoder.encode(newPassword));
+    // 명시적으로 merge 해 주어야 함
+    accountRepository.save(account);
+
+  }
 }

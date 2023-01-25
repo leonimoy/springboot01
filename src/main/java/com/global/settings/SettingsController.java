@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -31,9 +33,19 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class SettingsController {
 
+  // PasswordFormValidator 를 Bean 으로 등록하지 않고
+  // InitBinder 를 사용해서 객체를 생성함
+  @InitBinder("passwordForm")
+  public void initBinder(WebDataBinder webDataBinder){
+    webDataBinder.addValidators(new PasswordFormValidator());
+  }
+
   // "settings.profile" 문자열을 static 변수에 저장함
   static final String SETTINGS_PROFILE_VIEW = "settings/profile";
   static final String SETTINGS_PROFILE_URL = "/settings/profile";
+
+  static final String SETTINGS_PASSWORD_VIEW = "settings/password";
+  static final String SETTINGS_PASSWORD_URL = "/settings/password";
 
   // Service type 의 멤버변수 선언
   private final AccountService accountService;
@@ -44,7 +56,7 @@ public class SettingsController {
   // @CurrentUser  <-- 현재 user(현재 login 상태에 있는 회원)
   //                   정보를 가져오기 위한 Annotation
   @GetMapping(SETTINGS_PROFILE_URL)
-  public String profileUpdateForm(@CurrentUser Account account, Model model){
+  public String updateProfileForm(@CurrentUser Account account, Model model){
     // model.addAttribute("account", account); 아래의 code 와 같은 기능을 함
     // attributeName 이 자동으로 "account" 라고 지어짐
     model.addAttribute(account);
@@ -95,6 +107,34 @@ public class SettingsController {
     //  SETTINGS_PROFILE_URL 변수에 / 가 이미 있으므로
     //  redirect: 뒤에는 / 가 없어야 함
     //  SETTINGS_PROFILE_URL = "/settings/profile"
+    return "redirect:" + SETTINGS_PROFILE_URL;
+  }
+
+  @GetMapping(SETTINGS_PASSWORD_URL)
+  public String updatePasswordForm(@CurrentUser Account account, Model model){
+    model.addAttribute(account);
+
+    // Form 으로 사용할 객체가 없음 -> Form 으로 사용할 클래스 작성하기
+    // com.global.settings.PasswordForm 클래스 작성함
+    model.addAttribute(new PasswordForm());
+
+    return SETTINGS_PASSWORD_VIEW;
+  }
+
+  // @CurrentUser Account account : 현재 접속해 있는 사용자
+  @PostMapping(SETTINGS_PASSWORD_URL)
+  public String updatePassword(@CurrentUser Account account,
+                               @Valid PasswordForm passwordForm,
+                               Errors errors, Model model,
+                               RedirectAttributes redirectAttributes){
+    if(errors.hasErrors()){
+      model.addAttribute(account);
+      return SETTINGS_PASSWORD_VIEW;
+    }
+
+    accountService.updatePassword(account, passwordForm.getNewPassword());
+    redirectAttributes.addFlashAttribute("message", "비밀번호를 수정했습니다.");
+
     return "redirect:" + SETTINGS_PROFILE_URL;
   }
 
