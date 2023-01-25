@@ -4,6 +4,7 @@ import com.global.domain.Account;
 import com.global.settings.Notifications;
 import com.global.settings.Profile;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,6 +40,8 @@ public class AccountService implements UserDetailsService {
   private final JavaMailSender javaMailSender;
   private final PasswordEncoder passwordEncoder;
   // private final AuthenticationManager authenticationManager;
+
+  private final ModelMapper modelMapper;
 
   
   public Account processNewAccount(SignUpForm signUpForm) {
@@ -125,18 +128,23 @@ public class AccountService implements UserDetailsService {
   }
 
   public void updateProfile(Account account, Profile profile) {
+    // ModelMapper 사용하기
+    modelMapper.map(profile, account);
+
+
     // account 의 정보를 변경함
     // account 객체 <-- 현재 로그인해 있는 회원의 정보를 저장한 객체
     // profile 객체 <-- 변경한 내용(bio, url, occupation, location) 정보를 저장한 객체
     // 변경한 내용을 저장한 profile 객체에서 bio, url, occupation, location 을 갖고 와서
     // 현재 로그인한 회원의 정보를 저장하고 있는 account 객체의 bio, url, occupation, location 에 할당함
-    account.setBio(profile.getBio());
-    account.setUrl(profile.getUrl());
-    account.setOccupation(profile.getOccupation());
-    account.setLocation(profile.getLocation());
+    // modelMapper.map(profile, account); 에 의해서 아래의 code 를 생략함
+    // account.setBio(profile.getBio());
+    // account.setUrl(profile.getUrl());
+    // account.setOccupation(profile.getOccupation());
+    // account.setLocation(profile.getLocation());
 
     // 프로필 사진 업데이트 처리 : 이미지를 가져와서 넣어줌
-    account.setProfileImage(profile.getProfileImage());
+    // account.setProfileImage(profile.getProfileImage());
 
     // account 객체의 멤버변수 값이 변경된 것을 DB 에도 반영함
     accountRepository.save(account);
@@ -157,12 +165,16 @@ public class AccountService implements UserDetailsService {
   }
 
   public void updateNotifications(Account account, Notifications notifications) {
+    modelMapper.map(notifications, account);
+    // modelMapper.map(notifications, account); 에 의해서 아래의 code 를 생략함
+    /*
     account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
     account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
     account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
     account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
     account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
     account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
+    */
     accountRepository.save(account);
   }
 }
