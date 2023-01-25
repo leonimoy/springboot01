@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,6 +51,19 @@ class SettingsControllerTest {
     accountRepository.deleteAll();
   }
 
+
+  // @WithAccount("global") - 인증정보를 제공해 주는 Annotation
+  @WithAccount("global")
+  @DisplayName("프로필 수정 폼 테스트")
+  @Test
+  void updateProfileForm() throws Exception{
+    String bio = "자기소개를 수정하는 경우";
+    mockMvc.perform(get(SettingsController.SETTINGS_PROFILE_URL))
+          .andExpect(status().isOk())
+          .andExpect(model().attributeExists("account"))
+          .andExpect(model().attributeExists("profile"));
+  }
+
   // 요청을 보낼 때, 어떤 user 가 보내는지 설정하기
   // Spring Security 에서 test 코드를 작성할 때
   //  Security Context 를 설정하는 방법을 사용함
@@ -67,6 +81,18 @@ class SettingsControllerTest {
   // java.lang.IllegalStateException: Unable to create SecurityContext using
   // @org.springframework.security.test.context.support.WithUserDetails
   // (setupBefore=TEST_METHOD, userDetailsServiceBeanName="", value="global") 에러가 발생함
+  /*
+    void updateProfile() 로 test 하면
+    global 이라는 account 를 생성하고나서
+    global 이라는 account 를 Security Context 에 넣은 후에
+    test 를 진행하게 됨  <-- test 성공 !!!
+
+    Account global = accountRepository.findByNickName("global");
+      <-- 에서 global 이라는 account 를 생성한 후에
+          data 가 변경되었으므로, 다시 loading 해도
+          data 가 변경된 것을 확인할 수 있게 됨
+
+  */
   @WithAccount("global")
   @DisplayName("프로필 수정 테스트 - 입력값이 정상인 경우")
   @Test
@@ -83,7 +109,24 @@ class SettingsControllerTest {
     Account global = accountRepository.findByNickName("global");
     // global.getBio() 에서 얻어온 정보가 33행의 bio 의 값으로 변경되었는지 확인함
     assertEquals(bio, global.getBio());
+  }
 
+  @WithAccount("global")
+  @DisplayName("프로필 수정 테스트 - 입력값에 오류가 있는 경우")
+  @Test
+  void updateProfile_error() throws Exception{
+    String bio = "자기소개를 35자가 넘게 길게 입력한 경우에는 오류가 발생하도록 Profile 클래스에 @Length(max=35) 라고 설정해 놓았음";
+    mockMvc.perform(post(SettingsController.SETTINGS_PROFILE_URL)
+          .param("bio", bio)
+          .with(csrf()))
+          .andExpect(status().isOk())
+          .andExpect(view().name(SettingsController.SETTINGS_PROFILE_VIEW))
+          .andExpect(model().attributeExists("account"))
+          .andExpect(model().attributeExists("profile"))
+          .andExpect(model().hasErrors());
+
+    Account global = accountRepository.findByNickName("global");
+    assertNull(global.getBio());
   }
 
 
