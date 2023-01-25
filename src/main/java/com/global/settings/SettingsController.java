@@ -135,7 +135,7 @@ public class SettingsController {
     accountService.updatePassword(account, passwordForm.getNewPassword());
     redirectAttributes.addFlashAttribute("message", "비밀번호를 수정했습니다.");
 
-    return "redirect:" + SETTINGS_PROFILE_URL;
+    return "redirect:" + SETTINGS_PASSWORD_URL;
   }
 
 }
