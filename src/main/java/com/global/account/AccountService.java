@@ -1,13 +1,12 @@
 package com.global.account;
 
 import com.global.domain.Account;
-import com.global.settings.Notifications;
-import com.global.settings.Profile;
+import com.global.settings.form.Notifications;
+import com.global.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,11 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.el.ELContext;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -177,5 +174,19 @@ public class AccountService implements UserDetailsService {
     account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
     */
     accountRepository.save(account);
+  }
+
+  // SettingsController 의
+  // public String updateAccount() 메소드에서 updateNickName 호출함
+  public void updateNickName(Account account, String nickName) {
+    //  수정한 nickName 저장하기
+    account.setNickName(nickName);
+    //  수정한 nickName 을 DB 에 반영하기
+    //  Account 객체가 detached 객체라서 이 작업을 해야 DB 에 반영됨
+    //    ㄴ 명시적으로 save 해야 함  <-- save 할 때 merge 가 일어남
+    accountRepository.save(account);
+
+    // 새로 수정된 nickName 으로 login 을 해야 네비게이션 부분에 반영됨
+    login(account);
   }
 }
