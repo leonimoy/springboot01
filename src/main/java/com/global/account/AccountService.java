@@ -189,4 +189,17 @@ public class AccountService implements UserDetailsService {
     // 새로 수정된 nickName 으로 login 을 해야 네비게이션 부분에 반영됨
     login(account);
   }
+  // AccountController 클래스의
+  // public String sendEmailLoginLink() 메소드에서 호출함
+  public void sendLoginLink(Account account) {
+    // token 을 새로 생성함
+    account.generateEmailCheckToken();
+    SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+    simpleMailMessage.setTo(account.getEmail());
+    simpleMailMessage.setSubject("Global Study Cafe 로그인 링크입니다");
+    // 이메일 링크에 새로 생성한 token 을 같이 보냄
+    simpleMailMessage.setText("/login-by-email?token=" + account.getEmailCheckToken() +
+                              "&email=" + account.getEmail());
+    javaMailSender.send(simpleMailMessage);
+  }
 }
