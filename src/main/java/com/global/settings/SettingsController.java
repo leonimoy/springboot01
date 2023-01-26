@@ -53,6 +53,9 @@ public class SettingsController {
   static final String SETTINGS_ACCOUNT_VIEW = "settings/account";
   static final String SETTINGS_ACCOUNT_URL = "/" + SETTINGS_ACCOUNT_VIEW;
 
+  static final String SETTINGS_TAGS_VIEW = "settings/tags";
+  static final String SETTINGS_TAGS_URL = "/" + SETTINGS_TAGS_VIEW;
+
 
   // Service type 의 멤버변수 선언
   private final AccountService accountService;
@@ -198,8 +201,14 @@ public class SettingsController {
     return "redirect:" + SETTING_NOTIFICATIONS_URL;
   }
 
-  // nickName 수정하기 위해서 @GetMapping, @PostMapping  메소드 작성하기
+  // tag 를 수정하는 view 보여주기
+  @GetMapping(SETTINGS_TAGS_URL)
+  public String updateTags(@CurrentUser Account account, Model model){
+    model.addAttribute(account);
+    return SETTINGS_TAGS_VIEW;
+  }
 
+  // nickName 수정하기 위해서 @GetMapping, @PostMapping  메소드 작성하기
   @GetMapping(SETTINGS_ACCOUNT_URL)
   public String updateAccountForm(@CurrentUser Account account, Model model){
     model.addAttribute(account);
@@ -223,6 +232,8 @@ public class SettingsController {
     return "redirect:" + SETTINGS_ACCOUNT_URL;
 
   }
+
+
 
 
 }
