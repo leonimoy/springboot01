@@ -167,6 +167,7 @@ public class AccountService implements UserDetailsService {
   public void updateNotifications(Account account, Notifications notifications) {
     modelMapper.map(notifications, account);
     // modelMapper.map(notifications, account); 에 의해서 아래의 code 를 생략함
+    //   notifications 에 있는 정보를 account 에 할당함
     /*
     account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
     account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
