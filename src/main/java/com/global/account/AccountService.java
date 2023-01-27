@@ -2,6 +2,7 @@ package com.global.account;
 
 import com.global.domain.Account;
 import com.global.domain.Tag;
+import com.global.domain.Zone;
 import com.global.settings.form.Notifications;
 import com.global.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 // AccountService 클래스는 @Service 에 의해서
@@ -227,5 +229,26 @@ public class AccountService implements UserDetailsService {
   public void removeTag(Account account, Tag tag) {
     Optional<Account> byId = accountRepository.findById(account.getId());
     byId.ifPresent(a -> a.getTags().remove(tag));
+  }
+
+  // AccountService 의 getZone() 메소드 에서 호출함
+  // Account 가 가지고 있는 Zone 정보 가져오기
+  public Set<Zone> getZones(Account account) {
+    Optional<Account> byId = accountRepository.findById(account.getId());
+    return byId.orElseThrow().getZones();
+  }
+
+  // SettingsController 의 public ResponseEntity addZone() 메소드에서 호출함
+  public void addZone(Account account, Zone zone) {
+    Optional<Account> byId =  accountRepository.findById(account.getId());
+    // a 는 account 객체를 의미함
+    byId.ifPresent(a -> a.getZones().add(zone));
+  }
+
+  // SettingsController 의 public ResponseEntity removeZone() 메소드에서 호출함
+  public void removeZone(Account account, Zone zone) {
+    Optional<Account> byId =  accountRepository.findById(account.getId());
+    // a 는 account 객체를 의미함
+    byId.ifPresent(a -> a.getZones().remove(zone));
   }
 }

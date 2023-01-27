@@ -25,4 +25,10 @@ public class Zone {
   @Column(nullable = true)
   private String province;
 
+  @Override
+  public String toString() {
+    // Andong,안동시,North Gyeongsang
+    // Andong(안동시)/North Gyeongsang
+    return String.format("%s(%s)/%s", city, localNameOfCity, province);
+  }
 }

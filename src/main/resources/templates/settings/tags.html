@@ -32,15 +32,7 @@
     th:inline="javascript"
           ㄴ javascript code 안에서 특정 model 이 들어있는 정보를 조회할 수 있음
   -->
-  <script type="application/javascript" th:inline="javascript">
-    $(function(){
-      let csrfToken = /* [[${_csrf.token}]] */ null;
-      let csrfHeader = /* [[${_csrf.headerName}]] */ null;
-      $(document).ajaxSend(function (e, xhr, options) {
-        xhr.setRequestHeader(csrfHeader, csrfToken);
-      });
-    });
-  </script>
+  <sctript th:replace="fragments.html :: ajax-csrf-header"></sctript>
   <!--
     ajax
 
