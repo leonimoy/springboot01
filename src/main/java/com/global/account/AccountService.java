@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 // AccountService 클래스는 @Service 에 의해서
 // Bean 으로 등록되어 있음 (Bean : Spring 이 자동으로 생성하고 관리하는 객체)
@@ -211,5 +212,20 @@ public class AccountService implements UserDetailsService {
     Optional<Account> byId = accountRepository.findById(account.getId());
     // a 는 account 객체를 의미함 : account 객체에 tag 를 추가함
     byId.ifPresent(a -> a.getTags().add(tag));
+  }
+
+  // public String updateTags() 메소드에서 호출함
+  public Set<Tag> getTags(Account account) {
+    Optional<Account> byId = accountRepository.findById(account.getId());
+
+    // 없으면 예외발생시키고, 있으면 tag 정보를 가져옴
+    return byId.orElseThrow().getTags();
+
+  }
+
+  // public ResponseEntity removeTag() 메소드에서 호출함
+  public void removeTag(Account account, Tag tag) {
+    Optional<Account> byId = accountRepository.findById(account.getId());
+    byId.ifPresent(a -> a.getTags().remove(tag));
   }
 }

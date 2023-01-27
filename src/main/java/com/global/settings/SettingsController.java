@@ -20,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 // error 가 없는 경우, update(수정작업) 를 진행함
@@ -205,6 +207,19 @@ public class SettingsController {
   @GetMapping(SETTINGS_TAGS_URL)
   public String updateTags(@CurrentUser Account account, Model model){
     model.addAttribute(account);
+
+    // form 을 입력하는 view 에서 등록한 tag 정보들을 조회하기
+    // Account 가 가지고 있는 tag 정보를 가져옴
+    Set<Tag> tags = accountService.getTags(account);
+
+    // view 에서 보여줄 때는 Tag Entity type 으로
+    // 보여주는 것이 아니고 문자열로 전송함
+    // Tag type 의 List 가 아니고, 문자열 type 의 List 로 함
+    // CurrentUser 가 가지고 있는 tag 목록을 view 에 전달하게 됨
+    // view 에서 이 정보를 화면에 (thymeleaf 사용)보여주게 됨  <-- settings/tags.html
+    model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
+
+    // settings/tags
     return SETTINGS_TAGS_VIEW;
   }
 
@@ -240,6 +255,20 @@ public class SettingsController {
 
     return ResponseEntity.ok().build();
   }
+
+  @PostMapping(SETTINGS_TAGS_URL + "/remove")
+  @ResponseBody
+  public ResponseEntity removeTag(@CurrentUser Account account,
+                                  @RequestBody TagForm tagForm){
+    String title = tagForm.getTagTitle();
+    Tag tag = tagRepository.findByTitle(title);
+    if(tag == null){
+      return ResponseEntity.badRequest().build();
+    }
+    accountService.removeTag(account, tag);
+    return ResponseEntity.ok().build();
+  }
+
 
   // nickName 수정하기 위해서 @GetMapping, @PostMapping  메소드 작성하기
   @GetMapping(SETTINGS_ACCOUNT_URL)
