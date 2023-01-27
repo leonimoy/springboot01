@@ -3,25 +3,23 @@ package com.global.settings;
 import com.global.account.AccountService;
 import com.global.account.CurrentUser;
 import com.global.domain.Account;
-import com.global.settings.form.NickNameForm;
-import com.global.settings.form.Notifications;
-import com.global.settings.form.PasswordForm;
-import com.global.settings.form.Profile;
+import com.global.domain.Tag;
+import com.global.settings.form.*;
 import com.global.settings.validator.NickNameValidator;
 import com.global.settings.validator.PasswordFormValidator;
+import com.global.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 
 // error 가 없는 경우, update(수정작업) 를 진행함
@@ -67,6 +65,8 @@ public class SettingsController {
   // SettingsController 에서 ModelMapper 설정하기
   // @RequiredArgsConstructor 에 의해서 Spring 으로부터 주입 받기
   private final NickNameValidator nickNameValidator;
+
+  private final TagRepository tagRepository;
 
 
   // PasswordFormValidator 를 Bean 으로 등록하지 않고
@@ -206,6 +206,39 @@ public class SettingsController {
   public String updateTags(@CurrentUser Account account, Model model){
     model.addAttribute(account);
     return SETTINGS_TAGS_VIEW;
+  }
+
+  // 관심 주제 등록을 위한 기능 구현
+  // @RequestBody TagForm tagForm  <-- ajax 요청으로부터 받아온 data
+  // @ResponseBody  <-- http 요청의 body 부분을 전달받음
+  //                    Java 객체를 JSON 형태로 변환해서 http body 에 담음
+  @PostMapping(SETTINGS_TAGS_URL + "/add")
+  @ResponseBody
+  public ResponseEntity addTag(@CurrentUser Account account,
+                               @RequestBody TagForm tagForm){
+    String title = tagForm.getTagTitle();
+
+    // title 에 할당된 문자열과 같은 tag 가
+    // 있는지 없는지 DB 에서 찾아봄
+    // tag 가 없으면 Account 에 추가해 줌
+    /*
+    Optional 을 사용하는 경우
+    Tag tag = tagRepository.findbyTitle(title).orElseGet(() -> tagRepository.save(Tag.builder()
+                                                                .title(tagForm.getTagTitle())
+                                                                .build()));
+    */
+
+    Tag tag = tagRepository.findByTitle(title);
+    /* Optional 을 사용하지 않고 조건문으로 null 값 처리를 하는 경우 */
+    /* tagRepository.findbyTitle(title) 으로 tag 를 가져오지 못하면 찾아서 할당함 */
+    if (tag == null){
+      tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
+    }
+
+    /* tag 를 가져온 경우(tag 가 DB 에 있음) account 에 tag 를 추가함 */
+    accountService.addTag(account, tag);
+
+    return ResponseEntity.ok().build();
   }
 
   // nickName 수정하기 위해서 @GetMapping, @PostMapping  메소드 작성하기
